@@ -1,3 +1,9 @@
+# HtmlDiff
+
+[![Publish to NPM](https://github.com/Atulin/HtmlDiff/actions/workflows/publish.yml/badge.svg)](https://github.com/Atulin/HtmlDiff/actions/workflows/publish.yml)
+[![NPM Downloads](https://img.shields.io/npm/dm/%40angius%2Fhtmldiff)](https://www.npmjs.com/package/@angius/htmldiff)
+[![Coverage Status](https://coveralls.io/repos/github/Atulin/HtmlDiff/badge.svg)](https://coveralls.io/github/Atulin/HtmlDiff)
+
 ## Custom fork of [HtmlDiff-js](https://github.com/hugsmidjan-is/htmldiff-js)
 
 - Rewrite to Typescript

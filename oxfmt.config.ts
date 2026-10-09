@@ -1,6 +1,6 @@
-import { defineConfig } from "oxfmt";
+import { defineConfig, OxfmtConfig } from "oxfmt";
 
-export default defineConfig({
+const config: OxfmtConfig = defineConfig({
 	useTabs: true,
 	tabWidth: 4,
 	printWidth: 120,
@@ -11,3 +11,5 @@ export default defineConfig({
 	},
 	insertFinalNewline: true,
 });
+
+export default config;

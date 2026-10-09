@@ -9,7 +9,7 @@ const baseConfig = {
 	treeshake: true,
 } satisfies UserConfig;
 
-export default defineConfig([
+const config: UserConfig[] = defineConfig([
 	{
 		...baseConfig,
 		dts: false,
@@ -23,3 +23,5 @@ export default defineConfig([
 		exports: true,
 	},
 ]);
+
+export default config;
