@@ -59,6 +59,35 @@ describe("HtmlDiff.execute / build", () => {
 		expect(delta(oldText, `${oldText} x`)).toContain('<ins class="diffins">&nbsp;x</ins>');
 	});
 
+	test("treats void elements as content instead of duplicating them", () => {
+		for (const name of [
+			"area",
+			"base",
+			"br",
+			"col",
+			"embed",
+			"hr",
+			"iframe",
+			"img",
+			"input",
+			"link",
+			"meta",
+			"param",
+			"source",
+			"track",
+			"video",
+			"wbr",
+		]) {
+			const tag = `<${name}>`;
+			expect(delta(tag, "")).toBe(`<del class="diffdel">${tag}</del>`);
+			expect(delta("", tag)).toBe(`<ins class="diffins">${tag}</ins>`);
+			expect(delta(`a${tag}`, `${tag}a`)).toBe(
+				`<ins class="diffins">${tag}</ins>a<del class="diffdel">${tag}</del>`,
+			);
+		}
+		expect(delta("<p>x</p><hr>", "<p>x</p>")).toBe('<p>x</p><del class="diffdel"><hr></del>');
+	});
+
 	test("preserves attribute values on equal tags", () => {
 		expect(delta("<a title='xx'>test</a>", "<a title='yy'>test</a>")).toBe("<a title='yy'>test</a>");
 		expect(delta("<p class='a'>x</p>", "<p class='b'>x</p>")).toBe("<p class='b'>x</p>");

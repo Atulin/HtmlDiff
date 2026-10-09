@@ -16,7 +16,7 @@ describe("isTag", () => {
 	test("recognises opening, closing and self-closing tags", () => {
 		expect(isTag("<strong>")).toBe(true);
 		expect(isTag("</strong>")).toBe(true);
-		expect(isTag("<br/>")).toBe(true);
+		expect(isTag("<span/>")).toBe(true);
 		expect(isTag('<a href="x">')).toBe(true);
 		expect(isTag(" <b> ")).toBe(true);
 	});
@@ -28,10 +28,36 @@ describe("isTag", () => {
 		expect(isTag("a <")).toBe(false);
 	});
 
-	test("treats img, video and iframe as words, not tags", () => {
-		expect(isTag("<img src='a.jpg'/>")).toBe(false);
+	test("treats void and atomic elements as words, not tags", () => {
+		for (const name of [
+			"area",
+			"base",
+			"br",
+			"col",
+			"embed",
+			"hr",
+			"iframe",
+			"img",
+			"input",
+			"link",
+			"meta",
+			"param",
+			"source",
+			"track",
+			"video",
+			"wbr",
+		]) {
+			expect(isTag(`<${name}>`)).toBe(false);
+			expect(isTag(`<${name}/>`)).toBe(false);
+			expect(isTag(`<${name} class="x">`)).toBe(false);
+		}
+	});
+
+	test("still treats non-void tags with the same prefix as tags", () => {
+		expect(isTag("<colgroup>")).toBe(true);
+		expect(isTag("<basefont>")).toBe(true);
 		expect(isTag("<video>")).toBe(false);
-		expect(isTag("<iframe>")).toBe(false);
+		expect(isTag("</video>")).toBe(true);
 	});
 });
 

@@ -3,14 +3,35 @@ const tagWordRegex = /<[^\s>]+/;
 const whitespaceRegex = /^(\s|&nbsp;)+$/;
 const wordRegex = /[\w#@þæðöøóòôõáàåäãúùůüûíïýỳÿéèêßçñąćęłńśżź,.]+/i;
 
-const specialCaseWordTags = ["<img", "<video", "<iframe"];
+const openingTagNameRegex = /<\s*([a-zA-Z][a-zA-Z0-9]*)/;
+
+const wordTagNames = new Set([
+	"area",
+	"base",
+	"br",
+	"col",
+	"embed",
+	"hr",
+	"iframe",
+	"img",
+	"input",
+	"link",
+	"meta",
+	"param",
+	"source",
+	"track",
+	"video",
+	"wbr",
+]);
 
 export function isTag(item: string | null): boolean {
-	if (specialCaseWordTags.some((re) => item !== null && item.startsWith(re))) {
+	if (item === null) {
 		return false;
 	}
 
-	if (item === null) {
+	const tagName = openingTagNameRegex.exec(item)?.[1]?.toLowerCase();
+
+	if (tagName !== undefined && wordTagNames.has(tagName)) {
 		return false;
 	}
 
