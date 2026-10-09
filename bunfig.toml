@@ -2,4 +2,4 @@
 coverage = true
 coverageThreshold = 0.9
 coverageInclude = ["src/**/*.ts"]
-coverageReporter = ["text"]
+coverageReporter = ["text", "lcov"]
