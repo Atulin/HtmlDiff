@@ -1,7 +1,6 @@
-## Custom fork of [HtmlDiff-js](https://github.com/dfoverdx/htmldiff-js/) 
+## Custom fork of [HtmlDiff-js](https://github.com/hugsmidjan-is/htmldiff-js) 
 
-- Modified to handle european special characters and pretty formatted numbers.
-- Includes some minor cleanups and bugfixes. Dropped ancient browser support.
+- Rewrite to Typescript
 
 ---
 

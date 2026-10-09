@@ -1,0 +1,6 @@
+[test]
+# Fail `bun test` when coverage drops below the threshold.
+coverage = true
+coverageThreshold = 95
+coverageInclude = ["src/**/*.ts"]
+coverageReporter = ["text", "lcov"]

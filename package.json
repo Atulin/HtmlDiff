@@ -1,43 +1,52 @@
 {
-  "name": "@hugsmidjan/htmldiff-js",
-  "version": "1.3.0",
-  "description": "JavaScript port of HtmlDiff.Net which is itself a C# port of HtmlDiff. Modified for reglugerd.is",
-  "main": "./dist/Diff.mjs",
-  "author": "Jordan Hitch",
-  "license": "ISC",
-  "contributors": [
-    "Jordan Hitch",
-    "Valur (valur@hugsmidjan.is)"
-  ],
-  "engines": {
-    "node": ">=14.15"
-  },
-  "scripts": {
-    "build": "tsdown",
-    "dev": "webpack --mode production --watch",
-    "publishdist": "npm run build  &&  npm publish",
-    "test": "jest"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/hugsmidjan-is/htmldiff-js.git"
-  },
-  "keywords": [
-    "HtmlDiff",
-    "Html",
-    "Diff",
-    "Diff Algorithm",
-    "Diff Structured File"
-  ],
-  "homepage": "https://github.com/hugsmidjan-is/htmldiff-js#readme",
-  "devDependencies": {
-    "tsdown": "^0.23.0",
-    "typescript": "^7.0.2"
-  },
-  "module": "./dist/Diff.mjs",
-  "types": "./dist/Diff.d.mts",
-  "exports": {
-    ".": "./dist/Diff.mjs",
-    "./package.json": "./package.json"
-  }
+	"name": "@angius/htmldiff",
+	"version": "2.0.0",
+	"description": "JavaScript port of HtmlDiff.Net which is itself a C# port of HtmlDiff. Modified for reglugerd.is",
+	"keywords": [
+		"Diff",
+		"Diff Algorithm",
+		"Diff Structured File",
+		"Html",
+		"HtmlDiff"
+	],
+	"homepage": "https://github.com/Atulin/HtmlDiff#readme",
+	"license": "ISC",
+	"author": "Jordan Hitch",
+	"contributors": [
+		"Jordan Hitch",
+		"Valur (valur@hugsmidjan.is)",
+		"Atulin"
+	],
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Atulin/HtmlDiff.git"
+	},
+	"main": "./dist/Diff.mjs",
+	"module": "./dist/Diff.mjs",
+	"types": "./dist/Diff.d.mts",
+	"exports": {
+		".": "./dist/Diff.mjs",
+		"./package.json": "./package.json"
+	},
+	"scripts": {
+		"build": "tsdown",
+		"test": "bun test",
+		"test:watch": "bun test --watch",
+		"test:coverage": "bun test --coverage"
+	},
+	"devDependencies": {
+		"@types/bun": "^1.4.2",
+		"oxfmt": "^0.72.0",
+		"oxlint": "^1.87.0",
+		"oxlint-tsgolint": "^7.0.2003",
+		"tsdown": "^0.23.0",
+		"typescript": "^7.0.2"
+	},
+	"engines": {
+		"node": ">=20"
+	},
+	"publishConfig": {
+		"provenance": true,
+		"access": "public"
+	}
 }
