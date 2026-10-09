@@ -4,17 +4,10 @@
 [![NPM Downloads](https://img.shields.io/npm/dm/%40angius%2Fhtmldiff)](https://www.npmjs.com/package/@angius/htmldiff)
 [![Coverage Status](https://coveralls.io/repos/github/Atulin/HtmlDiff/badge.svg)](https://coveralls.io/github/Atulin/HtmlDiff)
 
-## Custom fork of [HtmlDiff-js](https://github.com/hugsmidjan-is/htmldiff-js)
-
-- Rewrite to Typescript
-- ESM only
-
----
-
-JavaScript port of [HtmlDiff.NET](https://github.com/Rohland/htmldiff.net) which is itself a C# port of the Ruby implementation, [HtmlDiff](https://github.com/myobie/htmldiff/).
+TypeScript port of [HtmlDiff.NET](https://github.com/Rohland/htmldiff.net) which is itself a C# port of the Ruby implementation, [HtmlDiff](https://github.com/myobie/htmldiff/). This project is a maintained fork of [htmldiff-js](https://github.com/hugsmidjan-is/htmldiff-js), rewritten in TypeScript with ESM-only output.
 
 Project Description
--------------------
+------------------
 
 Diffs two HTML blocks, and returns a meshing of the two that includes `<ins>` and `<del>` elements. The classes of these elements are `ins.diffins` for new code, `del.diffdel` for removed code, and `del.diffmod` and `ins.diffmod` for sections of code that have been changed.
 
@@ -27,7 +20,29 @@ Further description can be found at this [blog post](http://www.rohland.co.za/in
 Usage
 -----
 
-#### Html
+#### Install
+
+```bash
+npm install @angius/htmldiff
+```
+
+#### JavaScript (ESM)
+
+```javascript
+import { diff, HtmlDiff } from "@angius/htmldiff";
+
+let oldHtml = document.getElementById("oldHtml");
+let newHtml = document.getElementById("newHtml");
+let diffHtml = document.getElementById("diffHtml");
+
+// One-shot helper
+diffHtml.innerHTML = diff(oldHtml.innerHTML, newHtml.innerHTML);
+
+// ...or use the class directly, which allows configuring options
+let result = new HtmlDiff(oldHtml.innerHTML, newHtml.innerHTML).build();
+```
+
+#### HTML
 
 ```html
 <html>
@@ -45,19 +60,38 @@ Usage
 </html>
 ```
 
-#### JavaScript
+### Options
+
+The `HtmlDiff` constructor takes the old and new HTML strings. The following public options can be set on the instance before calling `build()`:
+
+- `repeatingWordsAccuracy` (default `1.0`) — controls how aggressively frequently-repeating words are ignored during matching. Setting it to a large value (e.g. `Infinity`) disables the filtering entirely.
+- `ignoreWhiteSpaceDifferences` (default `false`) — when `true`, whitespace-only differences are treated as equal during matching.
+- `orphanMatchThreshold` (default `0.0`) — when greater than `0`, isolated blocks that are shorter (measured in characters) than the surrounding gaps times this factor are dropped instead of rendered as unchanged.
+- `addBlockExpression(exp)` — registers a regular expression that groups a text sequence as a single unit, so content matching the expression is compared as one block instead of word-by-word. Multiple expressions may be added; overlapping expressions throw an error.
 
 ```javascript
-import HtmlDiff from "htmldiff-js";
-
-let oldHtml = document.getElementById("oldHtml");
-let newHtml = document.getElementById("newHtml");
-let diffHtml = document.getElementById("diffHtml");
-
-diffHtml.innerHTML = HtmlDiff.execute(oldHtml.innerHTML, newHtml.innerHTML);
+const htmlDiff = new HtmlDiff(oldHtml, newHtml);
+htmlDiff.ignoreWhiteSpaceDifferences = true;
+htmlDiff.orphanMatchThreshold = 0.25;
+htmlDiff.addBlockExpression(/"[^"]*"/g);
+const result = htmlDiff.build();
 ```
 
 Demo
 ----
 
-I didn't port the demo, but it should output markup the same way the [htmldiff.net demo](https://github.com/Rohland/htmldiff.net/tree/master/Demo) does with a slight exception in what appeared to me to be a bug, which I 'fixed'. I can no longer remember what that bug was, as I only ported this project quickly in order to use it in another project.
+There is no bundled demo, but the output should match the [htmldiff.net demo](https://github.com/Rohland/htmldiff.net/tree/master/Demo) with a slight exception in what appeared to be a bug, which was 'fixed'.
+
+Development
+-----------
+
+```bash
+bun install
+bun test       # run the test suite
+bun test:watch # run tests in watch mode
+bun run build  # build ESM output to dist/
+bun run lint   # lint
+bun run fmt    # format
+```
+
+This project uses [Bun](https://bun.sh) as the runtime and package manager, [oxlint](https://oxc.rs/docs/guide/usage/linter) for linting, [oxfmt](https://oxc.rs/docs/guide/usage/formatter) for formatting, and [tsdown](http://tsdown.dev) for building.
