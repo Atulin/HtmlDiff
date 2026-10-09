@@ -15,7 +15,7 @@ export default defineConfig({
 		"typescript/no-inferrable-types": "off",
 		"typescript/prefer-enum-initializers": "off",
 		"unicorn/prefer-number-properties": "error",
-		"curly": "warn",
+		curly: "warn",
 	},
 	options: {
 		typeAware: true,

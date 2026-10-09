@@ -21,6 +21,7 @@
 		"type": "git",
 		"url": "git+https://github.com/Atulin/HtmlDiff.git"
 	},
+	"type": "module",
 	"main": "./dist/Diff.mjs",
 	"module": "./dist/Diff.mjs",
 	"types": "./dist/Diff.d.mts",
@@ -28,9 +29,16 @@
 		".": "./dist/Diff.mjs",
 		"./package.json": "./package.json"
 	},
+	"publishConfig": {
+		"access": "public",
+		"provenance": true
+	},
 	"scripts": {
 		"build": "tsdown",
 		"test": "bun test",
+		"lint": "oxlint",
+		"lint:fix": "oxlint --fix",
+		"fmt": "oxfmt",
 		"test:watch": "bun test --watch",
 		"test:coverage": "bun test --coverage"
 	},
@@ -44,9 +52,5 @@
 	},
 	"engines": {
 		"node": ">=20"
-	},
-	"publishConfig": {
-		"provenance": true,
-		"access": "public"
 	}
 }

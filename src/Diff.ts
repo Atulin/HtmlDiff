@@ -25,6 +25,8 @@ const specialCaseClosingTags = new Map([
 
 const specialCaseOpeningTagRegex = /<((strong)|(b)|(i)|(dfn)|(em)|(big)|(small)|(u)|(sub)|(sup)|(strike)|(s))[>\s]+/gi;
 
+let sumLength = (t: number, n: string) => t + n.length;
+
 export class HtmlDiff {
 	private content: any[];
 	private newText: string | null;
@@ -286,8 +288,6 @@ export class HtmlDiff {
 				curr = next;
 				continue;
 			}
-
-			let sumLength = (t: number, n: string) => t + n.length;
 
 			let oldDistanceInChars = this.oldWords.slice(prev.endInOld, next.startInOld).reduce(sumLength, 0);
 			let newDistanceInChars = this.newWords.slice(prev.endInNew, next.startInNew).reduce(sumLength, 0);
