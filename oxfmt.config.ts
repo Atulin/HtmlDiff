@@ -1,4 +1,4 @@
-import { defineConfig, OxfmtConfig } from "oxfmt";
+import { defineConfig, type OxfmtConfig } from "oxfmt";
 
 const config: OxfmtConfig = defineConfig({
 	useTabs: true,

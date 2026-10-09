@@ -1,4 +1,5 @@
-import { defineConfig, OxlintConfig } from "oxlint";
+import { defineConfig, type OxlintConfig } from "oxlint";
+
 const config: OxlintConfig = defineConfig({
 	plugins: ["typescript", "unicorn", "oxc", "promise", "import"],
 	categories: {

@@ -1,28 +1,29 @@
-import { defineConfig } from 'vitepress'
+import { defineConfig } from "vitepress";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: "HtmlDiff",
-  description: "HtmlDiff docs",
-  themeConfig: {
-    // https://vitepress.dev/reference/default-theme-config
-    nav: [
-      { text: 'Home', link: '/' },
-      { text: 'Examples', link: '/markdown-examples' }
-    ],
+	title: "HtmlDiff",
+	description: "Diff two HTML blocks and get a marked-up merge",
+	base: "/HtmlDiff/",
+	themeConfig: {
+		// https://vitepress.dev/reference/default-theme-config
+		nav: [
+			{ text: "Home", link: "/" },
+			{ text: "Getting Started", link: "/guide/getting-started" },
+			{ text: "Demo", link: "/demo" },
+		],
 
-    sidebar: [
-      {
-        text: 'Examples',
-        items: [
-          { text: 'Markdown Examples', link: '/markdown-examples' },
-          { text: 'Runtime API Examples', link: '/api-examples' }
-        ]
-      }
-    ],
+		sidebar: [
+			{
+				text: "Guide",
+				items: [{ text: "Getting Started", link: "/guide/getting-started" }],
+			},
+		],
 
-    socialLinks: [
-      { icon: 'github', link: 'https://github.com/vuejs/vitepress' }
-    ]
-  }
-})
+		socialLinks: [{ icon: "github", link: "https://github.com/Atulin/HtmlDiff" }],
+
+		footer: {
+			message: "Released under the ISC License.",
+		},
+	},
+});
