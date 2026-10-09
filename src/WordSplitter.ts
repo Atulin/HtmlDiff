@@ -1,8 +1,26 @@
-﻿import Mode from './Mode';
-import * as Utils from './Utils';
+﻿import { Mode, ModeValue } from "./Mode";
+import {
+  isEndOfEntity,
+  isEndOfTag,
+  isStartOfEntity,
+  isStartOfTag,
+  isWhiteSpace,
+  isWord,
+} from "./Utils";
 
-function convertHtmlToListOfWords(text, blockExpressions) {
-  let state = {
+type State = {
+  mode: ModeValue;
+  currentWord: string[];
+  words: string[];
+}
+
+
+export function convertHtmlToListOfWords(text: string | null, blockExpressions: RegExp[]): string[] {
+  if (text === null) {
+    return [];
+  }
+
+  let state: State = {
     mode: Mode.character,
     currentWord: [],
     words: [],
@@ -15,22 +33,20 @@ function convertHtmlToListOfWords(text, blockExpressions) {
   let groupingUntil = -1;
 
   for (let i = 0; i < text.length; i++) {
-    var character = text[i];
+    const character = text[i];
 
     // Don't bother executing block checks if we don't have any blocks to check for!
     if (isBlockCheckRequired) {
       // Check if we have completed grouping a text sequence/block
-      if (groupingUntil === index) {
+      if (groupingUntil === i) {
         groupingUntil = -1;
         isGrouping = false;
       }
 
       // Check if we need to group the next text sequence/block
-      let until = 0;
-      if (blockLocations.has(index)) {
-        until = blockLocations.get(index);
+      if (blockLocations.has(i)) {
+        groupingUntil = blockLocations.get(i) ?? -1;
         isGrouping = true;
-        groupingUntil = until;
       }
 
       // if we are grouping, then we don't care about what type of character we have, it's going to be treated as a word
@@ -43,22 +59,22 @@ function convertHtmlToListOfWords(text, blockExpressions) {
 
     switch (state.mode) {
       case Mode.character:
-        if (Utils.isStartOfTag(character)) {
+        if (isStartOfTag(character)) {
           addClearWordSwitchMode(state, '<', Mode.tag);
-        } else if (Utils.isStartOfEntity(character)) {
+        } else if (isStartOfEntity(character)) {
           addClearWordSwitchMode(state, character, Mode.entity);
-        } else if (Utils.isWhiteSpace(character)) {
+        } else if (isWhiteSpace(character)) {
           addClearWordSwitchMode(state, character, Mode.whitespace);
         } else if (
           /[,.]/.test(character) &&
-          (Utils.isWhiteSpace(text[i + 1]) || text[i + 1] === undefined)
+          (isWhiteSpace(text[i + 1]) || text[i + 1] === undefined)
         ) {
           // special case for [.,] before whitespace or end of text
           addClearWordSwitchMode(state, character, Mode.character);
         } else if (
-          Utils.isWord(character) &&
+          isWord(character) &&
           (state.currentWord.length === 0 ||
-            Utils.isWord(state.currentWord[state.currentWord.length - 1]))
+            isWord(state.currentWord[state.currentWord.length - 1]))
         ) {
           state.currentWord.push(character);
         } else {
@@ -68,12 +84,12 @@ function convertHtmlToListOfWords(text, blockExpressions) {
         break;
 
       case Mode.tag:
-        if (Utils.isEndOfTag(character)) {
+        if (isEndOfTag(character)) {
           state.currentWord.push(character);
           state.words.push(state.currentWord.join(''));
 
           state.currentWord = [];
-          state.mode = Utils.isWhiteSpace(character) ? Mode.whitespace : Mode.character;
+          state.mode = isWhiteSpace(character) ? Mode.whitespace : Mode.character;
         } else {
           state.currentWord.push(character);
         }
@@ -81,11 +97,11 @@ function convertHtmlToListOfWords(text, blockExpressions) {
         break;
 
       case Mode.whitespace:
-        if (Utils.isStartOfTag(character)) {
+        if (isStartOfTag(character)) {
           addClearWordSwitchMode(state, character, Mode.tag);
-        } else if (Utils.isStartOfEntity(character)) {
+        } else if (isStartOfEntity(character)) {
           addClearWordSwitchMode(state, character, Mode.entity);
-        } else if (Utils.isWhiteSpace(character)) {
+        } else if (isWhiteSpace(character)) {
           state.currentWord.push(character);
         } else {
           addClearWordSwitchMode(state, character, Mode.character);
@@ -94,11 +110,11 @@ function convertHtmlToListOfWords(text, blockExpressions) {
         break;
 
       case Mode.entity:
-        if (Utils.isStartOfTag(character)) {
+        if (isStartOfTag(character)) {
           addClearWordSwitchMode(state, character, Mode.tag);
-        } else if (Utils.isWhiteSpace(character)) {
+        } else if (isWhiteSpace(character)) {
           addClearWordSwitchMode(state, character, Mode.whitespace);
-        } else if (Utils.isEndOfEntity(character)) {
+        } else if (isEndOfEntity(character)) {
           let switchToNextMode = true;
           if (state.currentWord.length !== 0) {
             state.currentWord.push(character);
@@ -107,13 +123,13 @@ function convertHtmlToListOfWords(text, blockExpressions) {
             //join &nbsp; entity with last whitespace
             if (
               state.words.length > 2 &&
-              Utils.isWhiteSpace(state.words[state.words.length - 2]) &&
-              Utils.isWhiteSpace(state.words[state.words.length - 1])
+              isWhiteSpace(state.words[state.words.length - 2]) &&
+              isWhiteSpace(state.words[state.words.length - 1])
             ) {
               let w1 = state.words[state.words.length - 2];
               let w2 = state.words[state.words.length - 1];
               state.words.splice(state.words.length - 2, 2);
-              state.currentWord = [(w1 + w2).split()];
+              state.currentWord = [w1 + w2];
               state.mode = Mode.whitespace;
               switchToNextMode = false;
             }
@@ -123,7 +139,7 @@ function convertHtmlToListOfWords(text, blockExpressions) {
             state.currentWord = [];
             state.mode = Mode.character;
           }
-        } else if (Utils.isWord(character)) {
+        } else if (isWord(character)) {
           state.currentWord.push(character);
         } else {
           addClearWordSwitchMode(state, character, Mode.character);
@@ -140,7 +156,7 @@ function convertHtmlToListOfWords(text, blockExpressions) {
   return state.words;
 }
 
-function addClearWordSwitchMode(state, character, mode) {
+function addClearWordSwitchMode(state: State, character: string, mode: ModeValue) {
   if (state.currentWord.length !== 0) {
     state.words.push(state.currentWord.join(''));
   }
@@ -149,8 +165,8 @@ function addClearWordSwitchMode(state, character, mode) {
   state.mode = mode;
 }
 
-function findBlocks(text, blockExpressions) {
-  let blockLocations = new Map();
+function findBlocks(text: string, blockExpressions: RegExp[]) {
+  let blockLocations = new Map<number, number>();
 
   if (blockExpressions === null) {
     return blockLocations;
@@ -172,5 +188,3 @@ function findBlocks(text, blockExpressions) {
 
   return blockLocations;
 }
-
-export { convertHtmlToListOfWords };

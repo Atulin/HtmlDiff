@@ -1,10 +1,10 @@
-﻿import Action from './Action';
-import Match from './Match';
+﻿import { Action } from './Action';
+import { Match } from "./Match";
 import MatchFinder from './MatchFinder';
 import Operation from './Operation';
 import MatchOptions from './MatchOptions';
-import * as WordSplitter from './WordSplitter';
-import * as Utils from './Utils';
+import { isTag, wrapText } from "./Utils";
+import { convertHtmlToListOfWords } from "./WordSplitter";
 
 // This value defines balance between speed and memory utilization. The higher it is the faster it works and more memory consumes.
 const MatchGranuarityMaximum = 4;
@@ -27,7 +27,19 @@ const specialCaseOpeningTagRegex =
   /<((strong)|(b)|(i)|(dfn)|(em)|(big)|(small)|(u)|(sub)|(sup)|(strike)|(s))[\>\s]+/gi;
 
 class HtmlDiff {
-  constructor(oldText, newText) {
+  private content: any[];
+  private newText: string | null;
+  private oldText: string | null;
+  private specialTagDiffStack: any[];
+  private newWords: string[];
+  private oldWords: string[];
+  private matchGranularity: number;
+  private blockExpressions: RegExp[];
+  private repeatingWordsAccuracy: number;
+  private ignoreWhiteSpaceDifferences: boolean;
+  private orphanMatchThreshold: number;
+
+  constructor(oldText: string, newText: string) {
     this.content = [];
     this.newText = newText.normalize('NFC');
     this.oldText = oldText.normalize('NFC');
@@ -43,7 +55,7 @@ class HtmlDiff {
     this.orphanMatchThreshold = 0.0;
   }
 
-  build() {
+  build(): string | null {
     if (this.oldText === this.newText) {
       return this.newText;
     }
@@ -64,12 +76,12 @@ class HtmlDiff {
     return this.content.join('');
   }
 
-  addBlockExpression(exp) {
+  addBlockExpression(exp: RegExp): void {
     this.blockExpressions.push(exp);
   }
 
-  splitInputsIntoWords() {
-    this.oldWords = WordSplitter.convertHtmlToListOfWords(
+  splitInputsIntoWords(): void {
+    this.oldWords = convertHtmlToListOfWords(
       this.oldText,
       this.blockExpressions
     );
@@ -77,7 +89,7 @@ class HtmlDiff {
     //free memory, allow it for GC
     this.oldText = null;
 
-    this.newWords = WordSplitter.convertHtmlToListOfWords(
+    this.newWords = convertHtmlToListOfWords(
       this.newText,
       this.blockExpressions
     );
@@ -86,7 +98,7 @@ class HtmlDiff {
     this.newText = null;
   }
 
-  performOperation(opp) {
+  performOperation(opp: Operation): void {
     switch (opp.action) {
       case Action.equal:
         this.processEqualOperation(opp);
@@ -105,47 +117,52 @@ class HtmlDiff {
     }
   }
 
-  processReplaceOperation(opp) {
+  processReplaceOperation(opp: Operation): void {
     this.processDeleteOperation(opp, 'diffmod');
     this.processInsertOperation(opp, 'diffmod');
   }
 
-  processInsertOperation(opp, cssClass) {
+  processInsertOperation(opp: Operation, cssClass: string): void {
     let text = this.newWords.filter(
       (s, pos) => pos >= opp.startInNew && pos < opp.endInNew
     );
     this.insertTag('ins', cssClass, text);
   }
 
-  processDeleteOperation(opp, cssClass) {
+  processDeleteOperation(opp: Operation, cssClass: string): void {
     let text = this.oldWords.filter(
       (s, pos) => pos >= opp.startInOld && pos < opp.endInOld
     );
     this.insertTag('del', cssClass, text);
   }
 
-  processEqualOperation(opp) {
+  processEqualOperation(opp: Operation): void {
     let result = this.newWords.filter(
       (s, pos) => pos >= opp.startInNew && pos < opp.endInNew
     );
     this.content.push(result.join(''));
   }
 
-  insertTag(tag, cssClass, words) {
+  insertTag(tag: string, cssClass: string, words: string[]): void {
     while (words.length) {
-      let nonTags = this.extractConsecutiveWords(words, (x) => !Utils.isTag(x));
+      let nonTags = this.extractConsecutiveWords(words, (x) => !isTag(x));
 
       let specialCaseTagInjection = '';
       let specialCaseTagInjectionIsbefore = false;
 
       if (nonTags.length !== 0) {
-        let text = Utils.wrapText(nonTags.join(''), tag, cssClass);
+        let text = wrapText(nonTags.join(''), tag, cssClass);
         this.content.push(text);
       } else {
         if (specialCaseOpeningTagRegex.test(words[0])) {
-          let matchedTag = words[0].match(specialCaseOpeningTagRegex);
-          matchedTag = '<' + matchedTag[0].replace(/(<|>| )/g, '') + '>';
-          this.specialTagDiffStack.push(matchedTag);
+          const matchedTag = words[0].match(specialCaseOpeningTagRegex);
+
+          if (!matchedTag) {
+            continue;
+          }
+
+          const matched = '<' + matchedTag[0].replace(/(<|>| )/g, '') + '>';
+          this.specialTagDiffStack.push(matched);
           specialCaseTagInjection = '<ins class="mod">';
           if (tag === 'del') {
             words.shift();
@@ -185,11 +202,11 @@ class HtmlDiff {
         if (specialCaseTagInjectionIsbefore) {
           this.content.push(
             specialCaseTagInjection +
-              this.extractConsecutiveWords(words, Utils.isTag).join('')
+              this.extractConsecutiveWords(words, isTag).join('')
           );
         } else {
           this.content.push(
-            this.extractConsecutiveWords(words, Utils.isTag).join('') +
+            this.extractConsecutiveWords(words, isTag).join('') +
               specialCaseTagInjection
           );
         }
@@ -197,7 +214,7 @@ class HtmlDiff {
     }
   }
 
-  extractConsecutiveWords(words, condition) {
+  extractConsecutiveWords(words: string[], condition: (word: string) => boolean): string[] {
     let indexOfFirstTag = null;
 
     for (let i = 0; i < words.length; i++) {
@@ -227,10 +244,10 @@ class HtmlDiff {
     }
   }
 
-  operations() {
+  operations(): Operation[] {
     let positionInOld = 0;
     let positionInNew = 0;
-    let operations = [];
+    let operations: Operation[] = [];
 
     let matches = this.matchingBlocks();
     matches.push(new Match(this.oldWords.length, this.newWords.length, 0));
@@ -238,6 +255,10 @@ class HtmlDiff {
     let matchesWithoutOrphans = this.removeOrphans(matches);
 
     for (let match of matchesWithoutOrphans) {
+      if (match === null) {
+        continue;
+      }
+
       let matchStartsAtCurrentPositionInOld = positionInOld === match.startInOld;
       let matchStartsAtCurrentPositionInNew = positionInNew === match.startInNew;
 
@@ -268,7 +289,7 @@ class HtmlDiff {
         );
       }
 
-      if (match.length !== 0) {
+      if (match.size !== 0) {
         operations.push(
           new Operation(
             Action.equal,
@@ -287,9 +308,9 @@ class HtmlDiff {
     return operations;
   }
 
-  *removeOrphans(matches) {
-    let prev = null;
-    let curr = null;
+  *removeOrphans(matches: Match[]): Generator<Match | null, void, unknown> {
+    let prev = new Match(0, 0, 0);
+    let curr: Match | null = null;
 
     for (let next of matches) {
       if (curr === null) {
@@ -303,12 +324,12 @@ class HtmlDiff {
         (curr.endInOld === next.startInOld && curr.endInNew === next.startInNew)
       ) {
         yield curr;
-        let tmp = (prev = curr); // "let tmp" avoids babel traspiling error
+        prev = curr;
         curr = next;
         continue;
       }
 
-      let sumLength = (t, n) => t + n.length;
+      let sumLength = (t: number, n: string) => t + n.length;
 
       let oldDistanceInChars = this.oldWords
         .slice(prev.endInOld, next.startInOld)
@@ -333,8 +354,8 @@ class HtmlDiff {
     yield curr;
   }
 
-  matchingBlocks() {
-    let matchingBlocks = [];
+  matchingBlocks(): Match[] {
+    let matchingBlocks: Match[] = [];
     this.findMatchingBlocks(
       0,
       this.oldWords.length,
@@ -345,7 +366,7 @@ class HtmlDiff {
     return matchingBlocks;
   }
 
-  findMatchingBlocks(startInOld, endInOld, startInNew, endInNew, matchingBlocks) {
+  findMatchingBlocks(startInOld: number, endInOld: number, startInNew: number, endInNew: number, matchingBlocks: Match[]): void {
     let match = this.findMatch(startInOld, endInOld, startInNew, endInNew);
 
     if (match !== null) {
@@ -373,7 +394,7 @@ class HtmlDiff {
     }
   }
 
-  findMatch(startInOld, endInOld, startInNew, endInNew) {
+  findMatch(startInOld: number, endInOld: number, startInNew: number, endInNew: number): Match | null {
     for (let i = this.matchGranularity; i > 0; i--) {
       let options = new MatchOptions();
       options.blockSize = i;
@@ -397,10 +418,10 @@ class HtmlDiff {
 
     return null;
   }
-}
 
-HtmlDiff.execute = function (oldText, newText) {
-  return new HtmlDiff(oldText, newText).build();
-};
+  execute (oldText: string, newText: string): string | null {
+    return new HtmlDiff(oldText, newText).build();
+  }
+}
 
 export default HtmlDiff;

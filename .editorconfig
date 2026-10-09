@@ -1,15 +1,15 @@
 root = true
 
 [*]
-end_of_line = lf
-indent_style = space
-indent_size = 2
-max_line_length = 90
+end_of_line = crlf
+indent_style = tab
+indent_size = 4
+max_line_length = 140
 charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
-quote_type = single
+quote_type = double
 
 [*.{md,markdown}]
-max_line_length = 78
+max_line_length = 90
 trim_trailing_whitespace = false

@@ -1,8 +1,8 @@
-﻿import Match from './Match';
+﻿import { Match } from "./Match";
 import MatchOptions from './MatchOptions';
 import * as Utils from './Utils';
 
-function putNewWord(block, word, blockSize) {
+function putNewWord(block: string[], word: string, blockSize: number): string | null {
   block.push(word);
 
   if (block.length > blockSize) {
@@ -18,7 +18,17 @@ function putNewWord(block, word, blockSize) {
 
 // Finds the longest match in given texts. It uses indexing with fixed granularity that is used to compare blocks of text.
 export default class MatchFinder {
-  constructor(oldWords, newWords, startInOld, endInOld, startInNew, endInNew, options) {
+  private readonly oldWords: string[];
+  private readonly newWords: string[];
+  private readonly startInOld: number;
+  private readonly endInOld: number;
+  private readonly startInNew: number;
+  private readonly endInNew: number;
+  private options: MatchOptions;
+
+  private wordIndices: Map<any, any> = new Map();
+
+  constructor(oldWords: string[], newWords: string[], startInOld: number, endInOld: number, startInNew: number, endInNew: number, options: MatchOptions) {
     this.oldWords = oldWords;
     this.newWords = newWords;
     this.startInOld = startInOld;
@@ -28,9 +38,9 @@ export default class MatchFinder {
     this.options = options;
   }
 
-  indexNewWords() {
+  indexNewWords(): void {
     this.wordIndices = new Map();
-    let block = [];
+    let block: string[] = [];
     for (let i = this.startInNew; i < this.endInNew; i++) {
       // if word is a tag, we should ignore attributes as attribute changes are not supported (yet)
       let word = this.normalizeForIndex(this.newWords[i]);
@@ -49,20 +59,20 @@ export default class MatchFinder {
   }
 
   // Converts the word to index-friendly value so it can be compared with other similar words
-  normalizeForIndex(word) {
+  normalizeForIndex(word: string): string {
     word = Utils.stripAnyAttributes(word);
-    if (this.options.IgnoreWhiteSpaceDifferences && Utils.isWhiteSpace(word)) {
+    if (this.options.ignoreWhitespaceDifferences && Utils.isWhiteSpace(word)) {
       return ' ';
     }
 
     return word;
   }
 
-  findMatch() {
+  findMatch(): Match | null {
     this.indexNewWords();
     this.removeRepeatingWords();
 
-    if (this.wordIndices.length === 0) {
+    if (this.wordIndices.size === 0) {
       return null;
     }
 
@@ -72,7 +82,7 @@ export default class MatchFinder {
 
     let matchLengthAt = new Map();
     const blockSize = this.options.blockSize;
-    let block = [];
+    let block: string[] = [];
 
     for (let indexInOld = this.startInOld; indexInOld < this.endInOld; indexInOld++) {
       let word = this.normalizeForIndex(this.oldWords[indexInOld]);
@@ -112,7 +122,7 @@ export default class MatchFinder {
   // This method removes words that occur too many times. This way it reduces total count of comparison operations
   // and as result the diff algoritm takes less time. But the side effect is that it may detect false differences of
   // the repeating words.
-  removeRepeatingWords() {
+  removeRepeatingWords(): void {
     let threshold = this.newWords.length + this.options.repeatingWordsAccuracy;
     let repeatingWords = Array.from(this.wordIndices.entries())
       .filter((i) => i[1].length > threshold)
