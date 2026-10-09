@@ -1,57 +1,61 @@
 {
-	"name": "@angius/htmldiff",
-	"version": "2.0.1",
-	"description": "JavaScript port of HtmlDiff.Net which is itself a C# port of HtmlDiff. Modified for reglugerd.is",
-	"keywords": [
-		"Diff",
-		"Diff Algorithm",
-		"Diff Structured File",
-		"Html",
-		"HtmlDiff"
-	],
-	"homepage": "https://github.com/Atulin/HtmlDiff#readme",
-	"license": "ISC",
-	"author": "Jordan Hitch",
-	"contributors": [
-		"Jordan Hitch",
-		"Valur (valur@hugsmidjan.is)",
-		"Atulin"
-	],
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/Atulin/HtmlDiff.git"
-	},
-	"type": "module",
-	"types": "./dist/Diff.d.ts",
-	"exports": {
-		".": "./dist/Diff.js",
-		"./package.json": "./package.json"
-	},
-	"files": [
-		"dist"
-	],
-	"publishConfig": {
-		"access": "public",
-		"provenance": true
-	},
-	"scripts": {
-		"build": "tsdown",
-		"test": "bun test",
-		"lint": "oxlint",
-		"lint:fix": "oxlint --fix",
-		"fmt": "oxfmt",
-		"test:watch": "bun test --watch",
-		"test:coverage": "bun test --coverage"
-	},
-	"devDependencies": {
-		"@types/bun": "^1.4.2",
-		"oxfmt": "^0.72.0",
-		"oxlint": "^1.87.0",
-		"oxlint-tsgolint": "^7.0.2003",
-		"tsdown": "^0.23.0",
-		"typescript": "^7.0.2"
-	},
-	"engines": {
-		"node": ">=20"
-	}
+  "name": "@angius/htmldiff",
+  "version": "2.0.1",
+  "description": "JavaScript port of HtmlDiff.Net which is itself a C# port of HtmlDiff. Modified for reglugerd.is",
+  "keywords": [
+    "Diff",
+    "Diff Algorithm",
+    "Diff Structured File",
+    "Html",
+    "HtmlDiff"
+  ],
+  "homepage": "https://github.com/Atulin/HtmlDiff#readme",
+  "license": "ISC",
+  "author": "Jordan Hitch",
+  "contributors": [
+    "Jordan Hitch",
+    "Valur (valur@hugsmidjan.is)",
+    "Atulin"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Atulin/HtmlDiff.git"
+  },
+  "type": "module",
+  "types": "./dist/Diff.d.ts",
+  "exports": {
+    ".": "./dist/Diff.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "build": "tsdown",
+    "test": "bun test",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "fmt": "oxfmt",
+    "test:watch": "bun test --watch",
+    "test:coverage": "bun test --coverage",
+    "site:dev": "vitepress dev site",
+    "site:build": "vitepress build site",
+    "site:preview": "vitepress preview site"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.2",
+    "oxfmt": "^0.72.0",
+    "oxlint": "^1.87.0",
+    "oxlint-tsgolint": "^7.0.2003",
+    "tsdown": "^0.23.0",
+    "typescript": "^7.0.2",
+    "vitepress": "^2.0.0-alpha.20"
+  },
+  "engines": {
+    "node": ">=20"
+  }
 }
