@@ -1,6 +1,6 @@
 {
 	"name": "@angius/htmldiff",
-	"version": "2.0.0",
+	"version": "2.0.1",
 	"description": "JavaScript port of HtmlDiff.Net which is itself a C# port of HtmlDiff. Modified for reglugerd.is",
 	"keywords": [
 		"Diff",
