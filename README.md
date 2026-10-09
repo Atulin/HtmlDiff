@@ -7,6 +7,7 @@
 ## Custom fork of [HtmlDiff-js](https://github.com/hugsmidjan-is/htmldiff-js)
 
 - Rewrite to Typescript
+- ESM only
 
 ---
 

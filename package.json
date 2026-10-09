@@ -22,13 +22,14 @@
 		"url": "git+https://github.com/Atulin/HtmlDiff.git"
 	},
 	"type": "module",
-	"main": "./dist/Diff.mjs",
-	"module": "./dist/Diff.mjs",
-	"types": "./dist/Diff.d.mts",
+	"types": "./dist/Diff.d.ts",
 	"exports": {
-		".": "./dist/Diff.mjs",
+		".": "./dist/Diff.js",
 		"./package.json": "./package.json"
 	},
+	"files": [
+		"dist"
+	],
 	"publishConfig": {
 		"access": "public",
 		"provenance": true
